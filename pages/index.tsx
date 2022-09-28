@@ -1,86 +1,198 @@
-import type { NextPage } from 'next'
-import Head from 'next/head'
-import Image from 'next/image'
+import type {GetStaticProps} from 'next';
+import React, {ChangeEvent, FC, useEffect, useState} from "react";
+import Image from "next/image";
+import {booksType} from "../types";
 
-const Home: NextPage = () => {
-  return (
-    <div className="flex min-h-screen flex-col items-center justify-center py-2">
-      <Head>
-        <title>Create Next App</title>
-        <link rel="icon" href="/favicon.ico" />
-      </Head>
-
-      <main className="flex w-full flex-1 flex-col items-center justify-center px-20 text-center">
-        <h1 className="text-6xl font-bold">
-          Welcome to{' '}
-          <a className="text-blue-600" href="https://nextjs.org">
-            Next.js!
-          </a>
-        </h1>
-
-        <p className="mt-3 text-2xl">
-          Get started by editing{' '}
-          <code className="rounded-md bg-gray-100 p-3 font-mono text-lg">
-            pages/index.tsx
-          </code>
-        </p>
-
-        <div className="mt-6 flex max-w-4xl flex-wrap items-center justify-around sm:w-full">
-          <a
-            href="https://nextjs.org/docs"
-            className="mt-6 w-96 rounded-xl border p-6 text-left hover:text-blue-600 focus:text-blue-600"
-          >
-            <h3 className="text-2xl font-bold">Documentation &rarr;</h3>
-            <p className="mt-4 text-xl">
-              Find in-depth information about Next.js features and its API.
-            </p>
-          </a>
-
-          <a
-            href="https://nextjs.org/learn"
-            className="mt-6 w-96 rounded-xl border p-6 text-left hover:text-blue-600 focus:text-blue-600"
-          >
-            <h3 className="text-2xl font-bold">Learn &rarr;</h3>
-            <p className="mt-4 text-xl">
-              Learn about Next.js in an interactive course with quizzes!
-            </p>
-          </a>
-
-          <a
-            href="https://github.com/vercel/next.js/tree/canary/examples"
-            className="mt-6 w-96 rounded-xl border p-6 text-left hover:text-blue-600 focus:text-blue-600"
-          >
-            <h3 className="text-2xl font-bold">Examples &rarr;</h3>
-            <p className="mt-4 text-xl">
-              Discover and deploy boilerplate example Next.js projects.
-            </p>
-          </a>
-
-          <a
-            href="https://vercel.com/import?filter=next.js&utm_source=create-next-app&utm_medium=default-template&utm_campaign=create-next-app"
-            className="mt-6 w-96 rounded-xl border p-6 text-left hover:text-blue-600 focus:text-blue-600"
-          >
-            <h3 className="text-2xl font-bold">Deploy &rarr;</h3>
-            <p className="mt-4 text-xl">
-              Instantly deploy your Next.js site to a public URL with Vercel.
-            </p>
-          </a>
-        </div>
-      </main>
-
-      <footer className="flex h-24 w-full items-center justify-center border-t">
-        <a
-          className="flex items-center justify-center gap-2"
-          href="https://vercel.com?utm_source=create-next-app&utm_medium=default-template&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Powered by{' '}
-          <Image src="/vercel.svg" alt="Vercel Logo" width={72} height={16} />
-        </a>
-      </footer>
-    </div>
-  )
+type booksTypeProps = {
+    books: booksType
 }
 
-export default Home
+export const getStaticProps: GetStaticProps = async () => {
+    const response = await fetch(`https://gutendex.com/books`);
+    const data = await response.json();
+
+    if (!data) {
+        return {
+            notFound: true,
+        }
+    }
+
+    return {
+        props: {books: data},
+    }
+};
+
+const Books: FC<booksTypeProps> = ({books}) => {
+    const [allBooks, setAllBooks] = useState<booksType>(books);
+    const [search, setSearch] = useState<string>("");
+    let page = 2;
+    let isRequest = true;
+    const language = [
+        {
+            id: "eng",
+            label: "English",
+            defaultChecked: true
+        },
+        {
+            id: "fr",
+            label: "France",
+            defaultChecked: false
+        },
+        {
+            id: "de",
+            label: "Deutsche",
+            defaultChecked: false
+        },
+    ]
+
+    const getBooks = async () => {
+        isRequest = false;
+
+        const response = await fetch('https://gutendex.com/books/?page=' + page + '&search=' + search);
+        const data = await response.json();
+
+        if (!data) {
+            return {
+                notFound: true,
+            }
+        }
+
+        if (page === 1) {
+            setAllBooks(() => ({
+                results: [...data.results]
+            }));
+        } else {
+            setAllBooks((prevState) => ({
+                results: [...prevState.results, ...data.results]
+            }));
+        }
+
+        isRequest = true;
+        page++;
+    }
+
+    const checkPosition = async () => {
+        const screenHeight = window.innerHeight;
+        const scrolled = window.scrollY;
+        const threshold = Math.max(
+            document.body.scrollHeight, document.documentElement.scrollHeight,
+            document.body.offsetHeight, document.documentElement.offsetHeight,
+            document.body.clientHeight, document.documentElement.clientHeight) - 50;
+        const position = scrolled + screenHeight;
+
+        if (position >= threshold && isRequest) {
+            getBooks();
+        }
+    }
+
+    const handleChangeInput = (e: ChangeEvent<HTMLInputElement>) => {
+        setSearch(e.target.value);
+    }
+
+    const searchBook = async () => {
+        if (isRequest) {
+            page = 1;
+            getBooks();
+        }
+    }
+
+    const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+        if (e.code === "Enter") {
+            searchBook();
+        }
+    }
+
+    useEffect(() => {
+        window.addEventListener('scroll', checkPosition);
+    }, [])
+
+    return (
+        <div className="py-5">
+            <div className="flex justify-between mb-3 items-center">
+                <div>
+                    <p className="font-bold mb-3">Languages</p>
+                    <div className="flex space-x-2.5">
+                        {language && language.map(({id, label, defaultChecked}, index) => (
+                            <section key={index}>
+                                <input className="w-5 h-5 mr-1.5 align-top rounded-none"
+                                       type="radio"
+                                       name="checkbox"
+                                       defaultChecked={defaultChecked}
+                                       value=""
+                                       id={id}/>
+                                <label className=""
+                                       htmlFor="eng">
+                                    {label}
+                                </label>
+                            </section>
+                        ))}
+                    </div>
+                </div>
+                <div className="relative max-w-[500px] w-full">
+                    <input type="text"
+                           placeholder="search"
+                           className="px-5 py-2.5 bg-gray-50 w-full rounded hover:bg-gray-100 transition-all duration-300
+                       focus:shadow-blue-500 focus:shadow-md focus:outline-none"
+                           onChange={(e) => handleChangeInput(e)}
+                           onKeyDown={(e) => handleKeyDown(e)}/>
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                         stroke="currentColor"
+                         className="w-6 h-6 absolute top-1/2 right-1.5 -translate-y-1/2 [stroke-width:1.5] cursor-pointer"
+                         onClick={searchBook}>
+                        <path
+                            d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z"/>
+                    </svg>
+                </div>
+            </div>
+            <div className="grid sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-1 leading-5">
+
+                {!allBooks.results.length
+                    ? <p className="mt-40 text-center col-start-1 col-end-5">
+                        Книг не найдено
+                    </p>
+                    : allBooks.results.map(({
+                                                id,
+                                                title,
+                                                authors,
+                                                download_count,
+                                                formats
+                                            }) => (
+                        <div key={id}
+                             className="flex min-h-[180px] max-h-[180px] space-x-2 p-5 items-start border border-blue-900
+                         rounded bg-blue-100 transition-all duration-300">
+                            <div className="block">
+                                <Image src={formats["image/jpeg"]}
+                                       alt="book"
+                                       width={130}
+                                       height={175}
+                                       className="w-full h-full object-cover block"/>
+                            </div>
+                            <div className="h-max">
+                                <p className="text-blue-900 text-base font-bold leading-5 max-w-[190px] max-h-[40px]
+                            overflow-hidden">
+                                    {title}
+                                </p>
+                                <div className="max-w-[190px] max-h-[58px] overflow-hidden">
+                                    {authors.map(({name, birth_year, death_year}, index) => (
+                                        <div key={index} className="">
+                                            <i className="text-sm">
+                                                {name} (
+                                                <strong className="text-xs">
+                                                    {birth_year || "unknown"} - {death_year || "unknown"}
+                                                </strong>)
+                                            </i>
+                                        </div>
+                                    ))}
+                                </div>
+                                <p className="text-sm ">
+                                    <strong className="text-red-800">Number of downloads:</strong> {download_count}
+                                </p>
+                            </div>
+                        </div>
+                    ))}
+            </div>
+        </div>
+    )
+}
+
+export default Books;
