@@ -1,5 +1,5 @@
 import {GetServerSideProps} from "next";
-import {FC} from "react";
+import {FC, useEffect} from "react";
 import Head from "next/head";
 import {bookType} from "../../types";
 import BookInfo from "../../Components/BookInfo";
@@ -7,7 +7,7 @@ import {setVisitedId} from "../../customFunctions/main";
 
 export const getServerSideProps: GetServerSideProps = async (context) => {
     // @ts-ignore
-    const { id } = context.params;
+    const {id} = context.params;
     const response = await fetch(`https://gutendex.com/books/${id}`);
     const data = await response.json();
 
@@ -28,7 +28,10 @@ type bookTypeProps = {
 
 const Book: FC<bookTypeProps> = ({book}) => {
     const {title, id} = book || {};
-    setVisitedId(id);
+
+    useEffect(() => {
+        setVisitedId(id);
+    }, [])
 
     return (
         <>

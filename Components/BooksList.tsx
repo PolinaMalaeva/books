@@ -39,9 +39,9 @@ const BooksList: FC<booksTypeProps> = ({allBooks}) => {
                           key={id}>
                         <a>
                             <div className={isVisited(id) ? '[opacity:0.6]' : ''}>
-                                <div className="flex min-h-[180px] max-h-[180px] space-x-2 p-5 items-start border
+                                <div className="flex min-h-[180px] max-h-[180px] space-x-2 p-5 pb-48 items-start border
                                 border-blue-900 rounded bg-blue-100 transition-all duration-300 cursor-pointer
-                                hover:bg-gray-100/80 hover:[box-shadow:_0_0_10px_5px_rgba(0,_0,_0,_0.5)]">
+                                hover:bg-gray-100/80 hover:[box-shadow:_0_0_10px_5px_rgba(0,_0,_0,_0.5)] sm:pb-48 lg:pb-5">
                                     <div className="block">
                                         <Image src={formats["image/jpeg"]}
                                                alt="book"

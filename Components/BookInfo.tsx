@@ -8,9 +8,10 @@ type bookInfoProps = {
 
 const BookInfo: FC<bookInfoProps> = ({book}) => {
     const {title, authors, download_count, formats, subjects} = book || {};
+
     return (
-        <div className="flex py-19 gap-x-20 py-10">
-            <div className="basis-2/5 text-end">
+        <div className="lg:flex sm:block py-19 gap-x-20 py-10">
+            <div className="w-max mx-auto pb-8 basis-2/5 text-end">
                 <Image src={formats["image/jpeg"]}
                        alt="book"
                        width={350}

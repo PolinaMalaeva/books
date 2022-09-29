@@ -32,21 +32,22 @@ const Books: FC<booksTypeProps> = ({books}) => {
     let isRequest = true;
 
     const checkPosition = async () => {
-        let urlPage = new URL(window.location.href);
+        if (window.location.pathname === '/books') {
+            let urlPage = new URL(window.location.href);
+            const screenHeight = window.innerHeight;
+            const scrolled = window.scrollY;
+            const threshold = Math.max(
+                document.body.scrollHeight, document.documentElement.scrollHeight,
+                document.body.offsetHeight, document.documentElement.offsetHeight,
+                document.body.clientHeight, document.documentElement.clientHeight) - 50;
+            const position = scrolled + screenHeight;
 
-        const screenHeight = window.innerHeight;
-        const scrolled = window.scrollY;
-        const threshold = Math.max(
-            document.body.scrollHeight, document.documentElement.scrollHeight,
-            document.body.offsetHeight, document.documentElement.offsetHeight,
-            document.body.clientHeight, document.documentElement.clientHeight) - 50;
-        const position = scrolled + screenHeight;
-
-        if (position >= threshold && isRequest) {
-            urlPage.searchParams.set('page', (urlPage.searchParams.has('page'))
-                ? `${Number(urlPage.searchParams.get('page')) + 1}` : "2");
-            history.pushState({}, '', urlPage.search);
-            getBooks();
+            if (position >= threshold && isRequest) {
+                urlPage.searchParams.set('page', (urlPage.searchParams.has('page'))
+                    ? `${Number(urlPage.searchParams.get('page')) + 1}` : "2");
+                history.pushState({}, '', urlPage.search);
+                getBooks();
+            }
         }
     }
 
