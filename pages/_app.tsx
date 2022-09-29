@@ -2,8 +2,12 @@ import '../styles/globals.css'
 import type {AppProps} from 'next/app'
 import Head from "next/head";
 import Layout from "../Components/Layout";
+import {useEffect} from "react";
 
 function MyApp({Component, pageProps}: AppProps) {
+    useEffect(() => {
+        import('tw-elements');
+    }, []);
     return (
         <>
             <Head>
