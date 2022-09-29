@@ -4,6 +4,7 @@ import {bookType, searchType} from "../../types";
 import Search from "../../Components/Search";
 import Languages from "../../Components/Languages";
 import BooksList from "../../Components/BooksList";
+import Head from "next/head";
 
 type booksTypeProps = {
     books: bookType[]
@@ -108,13 +109,18 @@ const Books: FC<booksTypeProps> = ({books}) => {
     }
 
     return (
-        <div className="py-5">
-            <div className="flex justify-between mb-3 items-center">
-                <Languages getBooks={getBooks}/>
-                <Search searchData={searchData}/>
+        <>
+            <Head>
+                <title>Books</title>
+            </Head>
+            <div className="py-5">
+                <div className="flex justify-between mb-3 items-center">
+                    <Languages getBooks={getBooks}/>
+                    <Search searchData={searchData}/>
+                </div>
+                <BooksList allBooks={allBooks}/>
             </div>
-            <BooksList allBooks={allBooks}/>
-        </div>
+        </>
     )
 }
 

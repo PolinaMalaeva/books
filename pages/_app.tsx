@@ -8,6 +8,7 @@ function MyApp({Component, pageProps}: AppProps) {
         <>
             <Head>
                 <link href="https://fonts.googleapis.com/css2?family=Montserrat&display=swap" rel="stylesheet"/>
+                <script src="https://cdn.tailwindcss.com"></script>
             </Head>
             <Layout>
                 <main className="[font-family:'Montserrat']  bg-gradient-to-r from-purple-300 to-blue-300">
