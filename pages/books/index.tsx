@@ -23,7 +23,7 @@ export const getStaticProps: GetStaticProps = async () => {
     }
 
     return {
-        props: {books: data.results, version: process.env.VERSION},
+        props: {books: data.results},
     }
 };
 
@@ -96,7 +96,7 @@ const Books: FC<booksTypeProps> = ({books, version}) => {
     }
 
     useEffect(() => {
-        localStorage.setItem('version', version);
+        //localStorage.setItem('version', version);
 
         let url = new URL(window.location.href);
         window.addEventListener('scroll', checkPosition);
