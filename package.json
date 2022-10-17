@@ -7,11 +7,13 @@
     "tailwind": "tailwind build styles/globals.css -o styles/tailwind.css"
   },
   "dependencies": {
+    "dotenv": "^16.0.3",
     "next": "latest",
     "next-compose-plugins": "^2.2.1",
     "next-images": "^1.8.4",
     "react": "18.1.0",
-    "react-dom": "18.1.0"
+    "react-dom": "18.1.0",
+    "smoothscroll-polyfill": "^0.4.4"
   },
   "devDependencies": {
     "@types/node": "17.0.35",

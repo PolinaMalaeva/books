@@ -5,9 +5,11 @@ import Search from "../../Components/Search";
 import Languages from "../../Components/Languages";
 import BooksList from "../../Components/BooksList";
 import Head from "next/head";
+import UpButton from "../../Components/UpBtn";
 
 type booksTypeProps = {
-    books: bookType[]
+    books: bookType[],
+    version: string
 }
 
 export const getStaticProps: GetStaticProps = async () => {
@@ -21,11 +23,11 @@ export const getStaticProps: GetStaticProps = async () => {
     }
 
     return {
-        props: {books: data.results, next: data.next},
+        props: {books: data.results, version: process.env.VERSION},
     }
 };
 
-const Books: FC<booksTypeProps> = ({books}) => {
+const Books: FC<booksTypeProps> = ({books, version}) => {
     const [allBooks, setAllBooks] = useState<bookType[]>(books);
     const [search, setSearch] = useState<string>("");
 
@@ -46,7 +48,7 @@ const Books: FC<booksTypeProps> = ({books}) => {
                 urlPage.searchParams.set('page', (urlPage.searchParams.has('page'))
                     ? `${Number(urlPage.searchParams.get('page')) + 1}` : "2");
                 history.pushState({}, '', urlPage.search);
-                getBooks();
+                await getBooks();
             }
         }
     }
@@ -77,9 +79,9 @@ const Books: FC<booksTypeProps> = ({books}) => {
         setSearch(e.target.value);
     }
 
-    const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    const handleKeyDown = async (e: React.KeyboardEvent<HTMLInputElement>) => {
         if (e.code === "Enter") {
-            searchBook();
+            await searchBook();
         }
     }
 
@@ -89,11 +91,13 @@ const Books: FC<booksTypeProps> = ({books}) => {
             url.searchParams.set('search', search);
             url.searchParams.set('page', "1");
             history.pushState({}, '', url.search);
-            getBooks();
+            await getBooks();
         }
     }
 
     useEffect(() => {
+        localStorage.setItem('version', version);
+
         let url = new URL(window.location.href);
         window.addEventListener('scroll', checkPosition);
         if (url.search) {
@@ -121,6 +125,7 @@ const Books: FC<booksTypeProps> = ({books}) => {
                 </div>
                 <BooksList allBooks={allBooks}/>
             </div>
+            <UpButton/>
         </>
     )
 }
